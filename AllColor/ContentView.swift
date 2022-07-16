@@ -9,9 +9,17 @@ import SwiftUI
 
 struct ContentView: View {
     
+    @State private var sliderValue = Double.random(in: 0...255)
+    
     @State private var redSlider = 1.0
     @State private var greenSlider = 1.0
     @State private var blueSlider = 1.0
+    
+    private func editColor() {
+        sliderValue = redSlider
+        sliderValue = greenSlider
+        sliderValue = blueSlider
+    }
     
     var body: some View {
         ZStack {
@@ -25,45 +33,85 @@ struct ContentView: View {
                 .padding()
                 
                 HStack(spacing: 20) {
-                    VStack(spacing: 20) {
-                        Text("1")
-                        Text("2")
-                        Text("3")
-                    }
-                    .padding()
+                ColorTextView(value: $sliderValue)
                     
-                    VStack(spacing: 20){
-                        Slider(value: $redSlider)
-                            .tint(.red)
-                        Slider(value: $greenSlider)
-                            .tint(.green)
-                        Slider(value: $blueSlider)
-                            .tint(.blue)
-                    }
+                ColorSliderView(redValue: $redSlider, greenValue: $greenSlider, blueValue: $blueSlider)
                     
-                    VStack(spacing: 20) {
-                        TextField("", value: $redSlider, formatter: NumberFormatter())
-                            .frame(width: 40, height: 30)
-                            .textFieldStyle(.roundedBorder)
-                        TextField("", value: $redSlider, formatter: NumberFormatter())
-                            .frame(width: 40, height: 30)
-                            .textFieldStyle(.roundedBorder)
-                        TextField("", value: $redSlider, formatter: NumberFormatter())
-                            .frame(width: 40, height: 30)
-                            .textFieldStyle(.roundedBorder)
-                    }
-                    .padding()
+                ColorTextFieldView(value: $sliderValue)
+                    
                 }
-                
                 Spacer()
             }
         }
     }
-    
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
+    }
+}
+
+struct ColorTextFieldView: View {
+    
+    @Binding var value: Double
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            TextField("", value: $value, formatter: NumberFormatter())
+                .style()
+            TextField("", value: $value, formatter: NumberFormatter())
+                .style()
+            TextField("", value: $value, formatter: NumberFormatter())
+                .style()
+        }
+        .padding()
+    }
+}
+
+struct ColorSliderView: View {
+    
+    @Binding var redValue: Double
+    @Binding var greenValue: Double
+    @Binding var blueValue: Double
+    
+    var body: some View {
+        VStack(spacing: 20){
+            Slider(value: $redValue, in: 0...255, step: 1)
+                .tint(.red)
+            Slider(value: $greenValue, in: 0...255, step: 1)
+                .tint(.green)
+            Slider(value: $blueValue, in: 0...255, step: 1)
+                .tint(.blue)
+        }
+    }
+}
+
+struct ColorTextView: View {
+    
+    @Binding var value: Double
+    
+    var body: some View {
+            VStack(spacing: 30) {
+                Text("\(lround(value))").foregroundColor(.white)
+                Text("\(lround(value))").foregroundColor(.white)
+                Text("\(lround(value))").foregroundColor(.white)
+            }
+            .padding()
+    }
+}
+
+struct TextFieldModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .frame(width: 40, height: 30)
+            .textFieldStyle(.roundedBorder)
+            .keyboardType(.decimalPad)
+    }
+}
+
+extension TextField {
+    func style() -> some View {
+        ModifiedContent(content: self, modifier: TextFieldModifier())
     }
 }
